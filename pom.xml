@@ -11,12 +11,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.myeongseong</groupId>
-    <artifactId>myeongseong</artifactId>
+    <groupId>com.naepalja</groupId>
+    <artifactId>naepalja</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>myeongseong</name>
-    <description>AI 기반 사주명리 웹앱 — 명성(命星)</description>
+    <name>naepalja</name>
+    <description>AI 기반 사주명리 웹앱 — 내팔자야</description>
 
     <properties>
         <java.version>17</java.version>

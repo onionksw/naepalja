@@ -1,4 +1,4 @@
-# 命星 (명성) — 사주 웹앱 프로젝트
+# 내팔자야 — 사주 웹앱 프로젝트
 
 ## 프로젝트 개요
 AI 기반 사주명리 웹앱. 사용자의 생년월일시를 입력받아 사주팔자를 계산하고,
@@ -40,7 +40,7 @@ Claude AI가 매일 새로운 운세 해석을 자동 생성하여 제공하는 
 ```
 src/
 ├── main/
-│   ├── java/com/myeongseong/
+│   ├── java/com/naepalja/
 │   │   ├── controller/
 │   │   │   ├── MainController.java        # 랜딩, 비회원 체험
 │   │   │   ├── UserController.java        # 회원가입, 로그인
