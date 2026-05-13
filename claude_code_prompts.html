@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命星 — Claude Code 프롬프트 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dim: #6B5820;
+  --ink: #0F0E0C;
+  --ink-2: #1A1915;
+  --ink-3: #252420;
+  --mute: #5A5648;
+  --paper: #FAF8F3;
+  --border: rgba(201,168,76,0.2);
+  --border-s: rgba(201,168,76,0.45);
+  --code-bg: #141310;
+  --tag-free: rgba(100,200,120,0.15);
+  --tag-free-c: #6DC880;
+  --tag-pro: rgba(201,168,76,0.15);
+  --tag-pro-c: #C9A84C;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--ink); color:var(--paper); font-family:'Noto Sans KR',sans-serif; font-weight:300; line-height:1.8; }
+
+header {
+  padding: 60px 40px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.h-badge { font-size:10px; letter-spacing:0.4em; color:var(--gold-dim); text-transform:uppercase; margin-bottom:10px; }
+.h-title { font-family:'Noto Serif KR',serif; font-size:28px; font-weight:400; color:var(--gold-light); margin-bottom:8px; }
+.h-sub { font-size:13px; color:var(--mute); }
+
+.tip-box {
+  max-width:900px; margin:32px auto 0; padding:0 40px;
+}
+.tip-inner {
+  background:rgba(201,168,76,0.05);
+  border:1px solid var(--border-s);
+  border-radius:6px;
+  padding:20px 24px;
+  font-size:13px;
+  color: #b0a480;
+  line-height:2;
+}
+.tip-inner strong { color:var(--gold-light); font-weight:500; }
+
+/* 섹션 */
+.phase {
+  max-width:900px; margin:0 auto; padding:48px 40px;
+  border-bottom:1px solid var(--border);
+}
+.phase:last-of-type { border-bottom:none; }
+
+.phase-header {
+  display:flex; align-items:center; gap:16px; margin-bottom:28px;
+}
+.phase-num {
+  font-family:'Noto Serif KR',serif;
+  font-size:11px; letter-spacing:0.3em;
+  color:var(--gold); text-transform:uppercase;
+  white-space:nowrap;
+}
+.phase-title {
+  font-family:'Noto Serif KR',serif;
+  font-size:18px; font-weight:400; color:var(--gold-light);
+}
+.phase-line { flex:1; height:1px; background:var(--border); }
+
+/* 프롬프트 카드 */
+.prompt-card {
+  background:var(--ink-2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.prompt-card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
+  background:var(--ink-3);
+}
+.prompt-label {
+  font-size:12px; font-weight:500; color:var(--paper);
+}
+.prompt-badges { display:flex; gap:6px; }
+.badge {
+  font-size:10px; letter-spacing:0.1em;
+  padding:2px 8px; border-radius:2px;
+}
+.badge-first { background:var(--tag-free); color:var(--tag-free-c); }
+.badge-daily { background:var(--tag-pro); color:var(--tag-pro-c); }
+
+.prompt-body {
+  padding:18px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  color:#c8c0a8;
+  line-height:1.9;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.copy-btn {
+  display:block; width:100%;
+  padding:10px;
+  background:rgba(201,168,76,0.06);
+  border:none; border-top:1px solid var(--border);
+  color:var(--gold-dim); font-family:'Noto Sans KR',sans-serif;
+  font-size:11px; letter-spacing:0.2em;
+  cursor:pointer; transition:all 0.2s;
+}
+.copy-btn:hover { background:rgba(201,168,76,0.12); color:var(--gold); }
+.copy-btn.copied { color:var(--tag-free-c); }
+
+/* 설치 가이드 */
+.setup-steps {
+  display:flex; flex-direction:column; gap:12px; margin-top:4px;
+}
+.step {
+  display:grid; grid-template-columns:28px 1fr;
+  gap:14px; align-items:start;
+  padding:16px 18px;
+  background:var(--ink-2);
+  border:1px solid var(--border);
+  border-radius:6px;
+}
+.step-n {
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--gold);
+  padding-top:2px;
+}
+.step-content strong {
+  display:block; font-size:13px; font-weight:500;
+  color:var(--paper); margin-bottom:4px;
+}
+.step-content p { font-size:12px; color:var(--mute); line-height:1.8; }
+.step-content code {
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  background:var(--code-bg);
+  color:var(--gold-light);
+  padding:1px 6px; border-radius:3px;
+}
+
+footer {
+  text-align:center; padding:48px 40px;
+  font-size:11px; color:var(--mute); letter-spacing:0.2em;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-badge">Claude Code Prompt Guide</div>
+  <div class="h-title">命星 — VS Code 개발 프롬프트 모음</div>
+  <div class="h-sub">각 단계별로 Claude Code에 붙여넣기 하세요</div>
+</header>
+
+<div class="tip-box">
+  <div class="tip-inner">
+    <strong>시작 전 필수</strong> — 프로젝트 폴더 안에 <strong>CLAUDE.md</strong> 파일을 먼저 넣어두세요.<br>
+    Claude Code는 이 파일을 자동으로 읽어 프로젝트 전체 구조를 이해합니다. 매번 설명할 필요가 없어집니다.<br>
+    VS Code 터미널에서 <strong>claude</strong> 명령어로 시작 → <strong>/init</strong> 입력하면 CLAUDE.md가 생성됩니다.
+  </div>
+</div>
+
+<!-- 0. 프로젝트 초기화 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Phase 0</div>
+    <div class="phase-title">프로젝트 초기화 — 가장 먼저 실행</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">프로젝트 뼈대 생성</div>
+      <div class="prompt-badges"><span class="badge badge-first">최초 1회</span></div>
+    </div>
+    <div class="prompt-body" id="p0-1">CLAUDE.md 파일을 읽고 命星(명성) 사주 웹앱 프로젝트의 Spring Boot 기반 Maven 프로젝트 뼈대를 생성해줘.
+
+아래 조건을 지켜줘:
+1. Spring Boot 3.x + Java 17
+2. pom.xml에 필요한 의존성 포함:
+   - spring-boot-starter-web
+   - spring-boot-starter-thymeleaf
+   - mybatis-spring-boot-starter
+   - mysql-connector-java
+   - lombok
+   - spring-boot-starter-security (기본만)
+3. application.properties에 DB 연결 설정 (localhost, DB명: myeongseong_db)
+4. CLAUDE.md의 디렉토리 구조대로 패키지와 빈 파일들을 생성해줘
+5. 각 파일에 한국어 주석으로 역할 설명 포함</div>
+    <button class="copy-btn" onclick="copyPrompt('p0-1', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">DB 테이블 생성 SQL</div>
+      <div class="prompt-badges"><span class="badge badge-first">최초 1회</span></div>
+    </div>
+    <div class="prompt-body" id="p0-2">CLAUDE.md의 DB 테이블 구조를 바탕으로 MySQL용 DDL SQL 파일을 생성해줘.
+
+요구사항:
+1. 파일명: src/main/resources/sql/schema.sql
+2. 테이블 순서: users → saju_info → manjuryok → daily_fortune → saju_report
+3. 각 테이블에 적절한 INDEX 추가 (user_id, fortune_date 등 조회에 쓰이는 컬럼)
+4. 외래키 제약조건 포함
+5. CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci 설정
+6. 각 테이블 앞에 한국어 주석으로 용도 설명</div>
+    <button class="copy-btn" onclick="copyPrompt('p0-2', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- Phase 1: 만세력 + 사주 계산 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Phase 1</div>
+    <div class="phase-title">만세력 + 사주 계산 로직</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">SajuService — 날짜→사주 계산</div>
+      <div class="prompt-badges"><span class="badge badge-first">최초 1회</span></div>
+    </div>
+    <div class="prompt-body" id="p1-1">@SajuService.java 파일을 열어서 아래 기능을 구현해줘.
+
+구현할 메서드:
+1. calculateSaju(LocalDate birthDate, String birthTime, boolean isLunar)
+   - 양력/음력 날짜를 받아 manjuryok 테이블에서 천간지지 조회
+   - 시주는 일간(日干) 기준으로 시간대별 계산 (자시~해시)
+   - 결과를 SajuInfoVO에 담아 반환
+
+2. getTodayGanji()
+   - 오늘 날짜의 일진(천간지지) 반환
+   - manjuryok 테이블에서 오늘 날짜 조회
+
+조건:
+- MyBatis ManjuryokMapper 사용
+- 예외 처리 포함 (날짜 범위 벗어나면 명확한 에러 메시지)
+- 각 메서드마다 한국어 주석으로 동작 설명
+- 시주 계산 로직은 전통 명리학 기준 (야자시 고려 선택사항)</div>
+    <button class="copy-btn" onclick="copyPrompt('p1-1', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">만세력 샘플 데이터 INSERT</div>
+      <div class="prompt-badges"><span class="badge badge-first">최초 1회</span></div>
+    </div>
+    <div class="prompt-body" id="p1-2">manjuryok 테이블에 넣을 샘플 데이터 SQL을 작성해줘.
+
+조건:
+1. 2024년 1월 1일 ~ 2025년 12월 31일 (2년치) 데이터
+2. 각 날짜의 solar_date, year_gan, year_ji, month_gan, month_ji, day_gan, day_ji 포함
+3. 실제 명리학 기준 천간지지 사용 (갑자년=2024년 기준)
+4. 파일명: src/main/resources/sql/manjuryok_sample.sql
+5. 100건씩 나눠서 INSERT 구문 작성
+
+참고: 2024년은 甲辰년(갑진년), 2025년은 乙巳년(을사년)</div>
+    <button class="copy-btn" onclick="copyPrompt('p1-2', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- Phase 2: Claude API 연동 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Phase 2</div>
+    <div class="phase-title">Claude API 연동 — 핵심 기능</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">SajuPromptBuilder — 프롬프트 조립</div>
+      <div class="prompt-badges"><span class="badge badge-daily">핵심</span></div>
+    </div>
+    <div class="prompt-body" id="p2-1">@SajuPromptBuilder.java 파일에 프롬프트 조립 로직을 구현해줘.
+
+이 클래스는 사주 데이터를 받아서 Claude API에 보낼 프롬프트 문자열을 만드는 역할이야.
+
+메서드: buildDailyFortunePrompt(SajuInfoVO saju, String todayGan, String todayJi)
+
+프롬프트 내용에 반드시 포함할 것:
+1. 사용자 일간(日干) — 예: 甲木(갑목)
+2. 사주팔자 8글자 전체
+3. 오늘 일진 (천간지지)
+4. 출력 형식을 명확히 지정 — 반드시 JSON만 반환, 다른 텍스트 없이
+5. JSON 키: total_luck, work_luck, love_luck, health_luck, caution, lucky_color, lucky_number, lucky_item
+6. 각 항목 2~3문장, 친근하고 따뜻한 말투, 부정적 내용은 완곡하게
+
+추가 요구사항:
+- @Component 어노테이션 적용
+- 프롬프트 템플릿은 상수로 분리
+- 한국어 주석 포함</div>
+    <button class="copy-btn" onclick="copyPrompt('p2-1', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">ClaudeApiService — API 호출</div>
+      <div class="prompt-badges"><span class="badge badge-daily">핵심</span></div>
+    </div>
+    <div class="prompt-body" id="p2-2">@ClaudeApiService.java 파일에 Claude API 호출 로직을 구현해줘.
+
+CLAUDE.md의 API 호출 방식을 참고해서 구현.
+
+구현 내용:
+1. callFortuneApi(String prompt) 메서드
+   - RestTemplate으로 POST /v1/messages 호출
+   - 요청 헤더: x-api-key, anthropic-version, content-type
+   - 요청 바디: model(claude-sonnet-4-5), max_tokens(1500), messages
+   - 응답에서 content[0].text 추출
+   - Jackson으로 FortuneResponseVO에 파싱해서 반환
+
+2. 예외 처리:
+   - API 호출 실패 시 log.error 출력
+   - JSON 파싱 실패 시 기본값 FortuneResponseVO 반환 (fallback)
+   - 타임아웃 설정 (30초)
+
+3. API 키는 @Value("${claude.api.key}")로 주입
+4. application.properties에 claude.api.key=여기에_키_입력 항목 추가
+
+모든 메서드에 한국어 주석 필수.</div>
+    <button class="copy-btn" onclick="copyPrompt('p2-2', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">FortuneService — 운세 생성 총괄</div>
+      <div class="prompt-badges"><span class="badge badge-daily">핵심</span></div>
+    </div>
+    <div class="prompt-body" id="p2-3">@FortuneService.java 파일에 운세 생성 전체 흐름을 구현해줘.
+
+메서드 2개:
+
+1. generateTodayFortune(Long userId)
+   - SajuMapper로 사용자 사주 조회
+   - SajuService.getTodayGanji()로 오늘 일진 조회
+   - SajuPromptBuilder로 프롬프트 생성
+   - ClaudeApiService로 Claude API 호출
+   - 결과를 daily_fortune 테이블에 저장
+   - @Transactional 적용
+
+2. getTodayFortune(Long userId)
+   - daily_fortune에서 오늘 날짜로 조회
+   - 없으면 generateTodayFortune 호출 후 반환
+   - 있으면 DB에서 바로 반환 (API 재호출 방지)
+
+비회원 처리:
+- generateGuestFortune(SajuInfoVO sajuInfo) 메서드 추가
+- DB 저장 없이 API 호출 결과만 반환
+
+한국어 주석 필수.</div>
+    <button class="copy-btn" onclick="copyPrompt('p2-3', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- Phase 3: 프론트엔드 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Phase 3</div>
+    <div class="phase-title">프론트엔드 — 화면 개발</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">랜딩 페이지 (index.html)</div>
+    </div>
+    <div class="prompt-body" id="p3-1">@templates/index.html 파일을 Thymeleaf 기반으로 만들어줘.
+
+디자인 컨셉: 신비롭고 고급스러운 프리미엄 느낌
+- 배경: 검정 계열 (#0F0E0C)
+- 포인트 색상: 골드 (#C9A84C)
+- 폰트: Noto Serif KR (제목), Noto Sans KR (본문)
+
+포함할 요소:
+1. 상단 로고 — 命星 한자 + 브랜드명
+2. 메인 카피 — "당신의 별이 말하는 오늘" 같은 감성적 문구
+3. 서브 카피 — 서비스 한 줄 소개
+4. CTA 버튼 2개:
+   - "지금 내 운세 보기" → /saju/input (비회원 체험)
+   - "로그인" → /user/login
+5. 하단 — 서비스 특징 3가지 간략 소개
+
+CSS는 style.css 파일로 분리, JS는 필요한 경우만
+반응형 (모바일 우선, max-width: 480px 기준)</div>
+    <button class="copy-btn" onclick="copyPrompt('p3-1', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">운세 결과 화면 (today.html)</div>
+    </div>
+    <div class="prompt-body" id="p3-2">@templates/fortune/today.html 파일을 만들어줘.
+
+이 화면은 Claude AI가 생성한 운세 결과를 보여주는 메인 화면이야.
+
+Thymeleaf 변수: ${fortune} (DailyFortuneVO 객체)
+
+화면 구성:
+1. 상단: 날짜 + 사용자 일간 표시 (예: "甲木 일간의 2025년 1월 15일")
+2. 총운 카드 — 가장 크게, 오늘의 핵심 메시지
+3. 운세 그리드 (2×2):
+   - 직업·재물운 / 애정운 / 건강운 / 조심할 것
+4. 행운 아이템 섹션:
+   - 행운의 색상 (색상 원 + 이름)
+   - 행운의 숫자 (크게 표시)
+   - 행운의 물건 (아이콘 + 텍스트)
+5. 비회원인 경우: "운세를 저장하고 매일 받아보세요" 배너 + 가입 버튼
+
+디자인: 검정 배경, 골드 포인트, 카드마다 subtle한 테두리
+로딩 중 스피너 애니메이션 포함</div>
+    <button class="copy-btn" onclick="copyPrompt('p3-2', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- Phase 4: 스케줄러 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Phase 4</div>
+    <div class="phase-title">스케줄러 — 자동 운세 생성</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">SchedulerService — 매일 자정 자동 실행</div>
+    </div>
+    <div class="prompt-body" id="p4-1">@SchedulerService.java 파일에 자동 운세 생성 스케줄러를 구현해줘.
+
+구현 내용:
+1. generateAllUsersFortune() 메서드
+   - @Scheduled(cron = "0 0 0 * * *") — 매일 자정 실행
+   - users 테이블에서 활성 회원 전체 조회
+   - 각 회원마다 FortuneService.generateTodayFortune() 호출
+   - 실패한 회원은 건너뛰고 다음 진행 (전체 중단 방지)
+   - 처리 결과 로그 출력 (성공 N명, 실패 N명)
+
+2. Application 클래스에 @EnableScheduling 추가 필요 — 알려줘
+
+3. 배치 처리 최적화:
+   - 회원 수가 많을 경우를 대비해 100명씩 나눠서 처리
+   - 각 호출 사이 1초 간격 (API rate limit 방지)
+
+주의사항:
+- Claude API 비용 최소화를 위해 이미 오늘 운세가 있으면 건너뜀
+- 에러 로그 상세 출력
+- 한국어 주석 필수</div>
+    <button class="copy-btn" onclick="copyPrompt('p4-1', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- 디버깅 프롬프트 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">디버깅</div>
+    <div class="phase-title">오류 발생 시 — 디버깅 프롬프트</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">에러 분석 요청</div>
+      <div class="prompt-badges"><span class="badge badge-first">상황별 사용</span></div>
+    </div>
+    <div class="prompt-body" id="pd-1">아래 에러가 발생했어. 원인을 분석하고 해결책을 알려줘.
+
+에러 메시지:
+[여기에 에러 로그 붙여넣기]
+
+관련 파일: @[파일명]
+
+추가 상황:
+[어떤 동작을 했을 때 발생했는지 설명]
+
+요청사항:
+1. 에러 원인 설명 (Spring/Java 초보자도 이해할 수 있게)
+2. 수정해야 할 코드 제시
+3. 이런 에러가 다시 발생하지 않도록 예방 방법</div>
+    <button class="copy-btn" onclick="copyPrompt('pd-1', this)">복사하기</button>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-card-header">
+      <div class="prompt-label">코드 리뷰 요청</div>
+      <div class="prompt-badges"><span class="badge badge-first">상황별 사용</span></div>
+    </div>
+    <div class="prompt-body" id="pd-2">@[파일명] 파일을 검토해줘.
+
+체크해줄 것:
+1. Spring MVC 패턴에 맞게 구현됐는지
+2. 예외 처리가 빠진 곳이 있는지
+3. SQL 인젝션 등 보안 취약점
+4. 성능 개선 포인트
+5. 한국어 주석이 부족한 부분
+
+초보 개발자도 이해할 수 있게 설명해줘.</div>
+    <button class="copy-btn" onclick="copyPrompt('pd-2', this)">복사하기</button>
+  </div>
+</div>
+
+<!-- 설치 가이드 -->
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-num">Setup</div>
+    <div class="phase-title">Claude Code 설치 순서</div>
+    <div class="phase-line"></div>
+  </div>
+
+  <div class="setup-steps">
+    <div class="step">
+      <div class="step-n">01</div>
+      <div class="step-content">
+        <strong>Node.js 설치</strong>
+        <p>Node.js 18 이상 설치 필요. <code>node --version</code> 으로 확인.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">02</div>
+      <div class="step-content">
+        <strong>Claude Code CLI 설치</strong>
+        <p>터미널에서 <code>npm install -g @anthropic-ai/claude-code</code> 실행</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">03</div>
+      <div class="step-content">
+        <strong>VS Code Extension 설치</strong>
+        <p>Extensions (Ctrl+Shift+X) → <code>Claude Code</code> 검색 → Anthropic 제작 확장 설치</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">04</div>
+      <div class="step-content">
+        <strong>CLAUDE.md 프로젝트 폴더에 복사</strong>
+        <p>다운로드한 CLAUDE.md 파일을 프로젝트 루트(pom.xml과 같은 위치)에 넣기</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">05</div>
+      <div class="step-content">
+        <strong>VS Code에서 시작</strong>
+        <p>프로젝트 폴더 열기 → 파일 하나 열기 → 우측 상단 번개(Spark) 아이콘 클릭 → Claude Code 패널 열림</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">06</div>
+      <div class="step-content">
+        <strong>첫 번째 프롬프트 입력</strong>
+        <p>Phase 0의 "프로젝트 뼈대 생성" 프롬프트를 복사해서 붙여넣기</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>命星 Claude Code 프롬프트 가이드 v1.0</footer>
+
+<script>
+function copyPrompt(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '복사됨 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '복사하기';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
