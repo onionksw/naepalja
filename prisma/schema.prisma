@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// 회원 테이블
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+
+  sajuInfo     SajuInfo?
+  dailyFortune DailyFortune[]
+  sajuReport   SajuReport?
+}
+
+// 사주 정보 (팔자 8글자)
+model SajuInfo {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique
+  birthDate String  // YYYY-MM-DD
+  birthTime String  // 자시/축시/... or HH:MM
+  gender    String  // M / F
+  isLunar   Boolean @default(false)
+
+  yearGan  String
+  yearJi   String
+  monthGan String
+  monthJi  String
+  dayGan   String
+  dayJi    String
+  hourGan  String
+  hourJi   String
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// 일일 운세 (Claude AI 생성)
+model DailyFortune {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  fortuneDate String   // YYYY-MM-DD
+  totalLuck   String
+  workLuck    String
+  loveLuck    String
+  healthLuck  String
+  caution     String
+  luckyColor  String
+  luckyNumber String
+  luckyItem   String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, fortuneDate])
+}
+
+// 사주 리포트 (최초 1회 생성)
+model SajuReport {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  daymaster   String
+  ohaengScore String   // JSON string
+  yongsin     String
+  personality String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// 만세력 (날짜 → 천간지지)
+model Manjuryok {
+  id         Int    @id @default(autoincrement())
+  solarDate  String @unique // YYYY-MM-DD
+  lunarDate  String
+  yearGan    String
+  yearJi     String
+  monthGan   String
+  monthJi    String
+  dayGan     String
+  dayJi      String
+}

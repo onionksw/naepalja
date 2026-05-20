@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --bg:       #F5F4F0;
+  --surface:  #FFFFFF;
+  --fg:       #17171A;
+  --fg-soft:  #48484F;
+  --muted:    #9E9EA8;
+  --line:     #E4E3DF;
+  --pin:      #17171A;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-sans), sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-serif { font-family: var(--font-serif), serif; }
+
+/* 스켈레톤 shimmer */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #ECEAE5 25%, #F5F4F0 50%, #ECEAE5 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 3px;
+}
+
+/* 페이드업 */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up   { animation: fadeUp 0.4s ease both; }
+.delay-1   { animation-delay: 0.06s; }
+.delay-2   { animation-delay: 0.12s; }
+.delay-3   { animation-delay: 0.18s; }
+
+/* 텍스트 fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.fade-in { animation: fadeIn 0.5s ease both; }
+
+/* 로더 캐릭터 */
+@keyframes bob {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+.loader-bob { animation: bob 2.4s ease-in-out infinite; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50%       { opacity: 0.1;  transform: scale(0.3); }
+}
+.twinkle-1 { animation: twinkle 2s 0.2s ease-in-out infinite; }
+.twinkle-2 { animation: twinkle 2s 0.7s ease-in-out infinite; }
+.twinkle-3 { animation: twinkle 2s 1.3s ease-in-out infinite; }
+
+/* 채팅 타이핑 점 */
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-5px); opacity: 1; }
+}
+.typing-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
